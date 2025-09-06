@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ClerkProvider } from "@clerk/nextjs";
+import { UsageProvider } from "./contexts/UsageContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,13 +34,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <body
+            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          >
+            <UsageProvider>{children}</UsageProvider>
+          </body>
         </ThemeProvider>
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
-          {children}
-        </body>
       </html>
     </ClerkProvider>
   );
