@@ -29,10 +29,15 @@ export async function POST(request: NextRequest) {
     if (event.type === "user.created") {
       // Handle user.created event
       const { id, email_addresses, first_name, last_name } = event.data;
+      console.log("id", id);
+      console.log("email_addresses", email_addresses);
+      console.log("first_name", first_name);
+      console.log("last_name", last_name);
+      console.log("event.data", event.data);
       const primaryEmail = email_addresses?.find(
         (email) => email.id === event.data.primary_email_address_id
-      )?.email_addresses;
-      await prisma.user.create({
+      )?.email_address;
+      const user = await prisma.user.create({
         data: {
           id: id,
           clerkId: id,
@@ -40,6 +45,7 @@ export async function POST(request: NextRequest) {
           name: `${first_name} ${last_name}`,
         },
       });
+      console.log("user", user);
       return NextResponse.json({ message: "user created successfully" });
     }
     return NextResponse.json({ message: "webhook event received" });
