@@ -18,7 +18,6 @@ function Home() {
     botToggles,
     initialLoading,
     fetchUpcomingEvents,
-    fetchPastMeetings,
     toggleBot,
     directOAuth,
     getAttendeeList,

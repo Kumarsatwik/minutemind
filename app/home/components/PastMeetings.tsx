@@ -9,7 +9,9 @@ interface PastMeetingsProps {
   pastMeetings: PastMeeting[];
   pastLoading: boolean;
   onMeetingClick: (id: string) => void;
-  getAttendeeList: (attendees: any) => string[];
+  getAttendeeList: (
+    attendees: string | string[] | null | undefined
+  ) => string[];
   getInitials: (name: string) => string;
 }
 

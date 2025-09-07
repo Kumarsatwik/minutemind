@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 export default function HeroSection() {
-  const { isSignedIn, user } = useUser();
+  const { isSignedIn } = useUser();
   return (
     <>
       <nav className="border-b border-gray-800 bg-black/80 backdrop-blur-sm sticky top z-50">
