@@ -7,6 +7,7 @@ import {
   useContext,
   useEffect,
   useState,
+  useCallback,
 } from "react";
 
 interface PlanLimits {
@@ -64,7 +65,7 @@ export function UsageProvider({ children }: { children: ReactNode }) {
       (limits.meetings === -1 || usage.meetingsThisMonth < limits.meetings)
     : false;
 
-  const fetchUsage = async () => {
+  const fetchUsage = useCallback(async () => {
     if (!userId) return;
 
     try {
@@ -78,7 +79,7 @@ export function UsageProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId]);
   const incrementChatUsage = async () => {
     if (!canChat) {
       return;
@@ -145,7 +146,7 @@ export function UsageProvider({ children }: { children: ReactNode }) {
     } else if (isLoaded && !userId) {
       setLoading(false);
     }
-  }, [userId, isLoaded]);
+  }, [userId, isLoaded, fetchUsage]);
 
   return (
     <UsageContext.Provider

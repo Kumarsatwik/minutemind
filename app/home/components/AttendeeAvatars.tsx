@@ -1,7 +1,9 @@
 import React from "react";
 interface AttendeeAvatarsProps {
-  attendees: any;
-  getAttendeeList: (attendees: any) => string[];
+  attendees: string | string[] | null | undefined;
+  getAttendeeList: (
+    attendees: string | string[] | null | undefined
+  ) => string[];
   getInitials: (name: string) => string;
 }
 

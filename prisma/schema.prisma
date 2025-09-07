@@ -103,7 +103,7 @@ model UserIntegration {
   platform String
   accessToken String @db.Text
   refreshToken String? @db.Text
-  expiresAt DateTime
+  expiresAt DateTime?
 
   boardId String?
   boardName String?

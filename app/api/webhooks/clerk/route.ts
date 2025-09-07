@@ -35,7 +35,8 @@ export async function POST(request: NextRequest) {
       console.log("last_name", last_name);
       console.log("event.data", event.data);
       const primaryEmail = email_addresses?.find(
-        (email) => email.id === event.data.primary_email_address_id
+        (email: { id: string; email_address: string }) =>
+          email.id === event.data.primary_email_address_id
       )?.email_address;
       const user = await prisma.user.create({
         data: {
