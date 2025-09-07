@@ -30,6 +30,7 @@ export async function GET() {
         connected: !!integration,
         boardName: integration?.boardName,
         projectName: integration?.projectName,
+        channelName: undefined as string | undefined,
       };
     });
 
@@ -45,6 +46,8 @@ export async function GET() {
         name: "Slack",
         logo: "💬",
         connected: true,
+        boardName: undefined,
+        projectName: undefined,
         channelName: dbUser.preferredChannelName || "Not Set",
       });
     } else {
@@ -53,6 +56,9 @@ export async function GET() {
         name: "Slack",
         logo: "💬",
         connected: false,
+        boardName: undefined,
+        projectName: undefined,
+        channelName: undefined,
       });
     }
 

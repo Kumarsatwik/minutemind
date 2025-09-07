@@ -7,9 +7,9 @@ export interface Integration {
   name: string;
   description: string;
   connected: boolean;
-  boardName?: string;    // For Trello integration
-  projectName?: string;  // For Jira/Asana integration
-  channelName?: string;  // For Slack integration
+  boardName?: string; // For Trello integration
+  projectName?: string; // For Jira/Asana integration
+  channelName?: string; // For Slack integration
   logo: string;
 }
 
@@ -29,7 +29,7 @@ export function useIntegrations() {
     },
     {
       platform: "trello",
-      name: "Trello", 
+      name: "Trello",
       description: "Add action items to your Trello boards",
       connected: false,
       logo: "/trello.png",
@@ -60,7 +60,9 @@ export function useIntegrations() {
   // State management for loading and setup processes
   const [loading, setLoading] = useState(true);
   const [setupMode, setSetupMode] = useState<string | null>(null);
-  const [setupData, setSetupData] = useState<any>(null);
+  const [setupData, setSetupData] = useState<Record<string, unknown> | null>(
+    null
+  );
   const [setupLoading, setSetupLoading] = useState(false);
 
   // Effect to fetch integrations on component mount and handle setup mode
@@ -68,7 +70,7 @@ export function useIntegrations() {
     if (userId) {
       fetchIntegrations();
     }
-    // if query params has ["trello","jira","asana","slack"] then set setup mode to the query param 
+    // if query params has ["trello","jira","asana","slack"] then set setup mode to the query param
     // /integrations/setup=trello
     const urlParams = new URLSearchParams(window.location.search);
     const setup = urlParams.get("setup");
@@ -76,7 +78,7 @@ export function useIntegrations() {
       setSetupMode(setup);
       fetchSetupData(setup);
     }
-  }, [userId]); 
+  }, [userId]);
 
   // Fetch the current status of all integrations
   const fetchIntegrations = async () => {
@@ -98,7 +100,13 @@ export function useIntegrations() {
           }
 
           const status = data.find(
-            (d: any) => d.platform === integration.platform
+            (d: {
+              platform: string;
+              connected: boolean;
+              boardName?: string;
+              projectName?: string;
+              channelName?: string;
+            }) => d.platform === integration.platform
           );
           return {
             ...integration,
@@ -157,7 +165,10 @@ export function useIntegrations() {
   };
 
   // Handle submitting setup configuration for an integration
-  const handleSetupSubmit = async (platform: string, config: any) => {
+  const handleSetupSubmit = async (
+    platform: string,
+    config: Record<string, unknown>
+  ) => {
     setSetupLoading(true);
     try {
       const response = await fetch(`/api/integrations/${platform}/setup`, {

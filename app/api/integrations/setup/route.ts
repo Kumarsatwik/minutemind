@@ -8,6 +8,7 @@ import { AsanaAPI } from "@/lib/integrations/asana/asana";
 import { refreshToken } from "@/lib/integrations/asana/refreshtoken";
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
+import { UserIntegration } from "@prisma/client";
 
 /**
  * Retrieves a valid access token for the integration.
@@ -15,7 +16,7 @@ import { NextRequest, NextResponse } from "next/server";
  * @param integration - The user's integration record from the database.
  * @returns The valid access token.
  */
-async function getValidToken(integration: any) {
+async function getValidToken(integration: UserIntegration) {
   if (integration.expiresAt && new Date() > integration.expiresAt) {
     const updated = await refreshToken(integration);
     return updated.accessToken;
