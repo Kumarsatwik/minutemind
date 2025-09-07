@@ -47,16 +47,19 @@ export function AppSidebar() {
   const pathname = usePathname();
   const { usage, limits } = useUsage();
 
+  // getting percentage of meetings used
   const meetingProgress =
     usage && limits.meetings !== -1
       ? Math.min((usage.meetingsThisMonth / limits.meetings) * 100, 100)
       : 0;
 
+  // getting percentage of chat messages used
   const chatProgress =
     usage && limits.chatMessages !== -1
       ? Math.min((usage.chatMessagesToday / limits.chatMessages) * 100, 100)
       : 0;
 
+  // getting upgrade info
   const getUpgradeInfo = () => {
     if (!usage) return null;
 
