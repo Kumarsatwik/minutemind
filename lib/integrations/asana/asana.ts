@@ -33,7 +33,7 @@ export class AsanaAPI {
    */
   async getProjects(token: string, workspaceId: string) {
     const response = await fetch(
-      `${this.baseUrl}/projects?workspaces=${workspaceId}`,
+      `${this.baseUrl}/projects?workspace=${workspaceId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
