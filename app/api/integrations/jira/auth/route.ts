@@ -4,16 +4,14 @@ import { NextResponse } from "next/server";
 export async function GET() {
   const { userId } = await auth();
   if (!userId) {
-    return NextResponse.redirect(
-      new URL("sign-in", process.env.NEXT_PUBLIC_APP_URL!)
-    );
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const clientId = process.env.JIRA_CLIENT_ID;
   const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/integrations/jira/callback`;
 
   const scope =
-    "read:jira-work write:jira:work manage:jira project manage:jira-configuration read:jira-user offline_access";
+    "read:jira-work write:jira-work manage:jira-project manage:jira-configuration read:jira-user offline_access";
 
   const state = userId;
 
