@@ -1,4 +1,4 @@
-import { ActionItemData } from "../types";
+import type { ActionItemData } from "../types";
 
 export class TrelloAPI {
   private apiKey = process.env.TRELLO_API_KEY!;
@@ -9,9 +9,26 @@ export class TrelloAPI {
     const response = await fetch(
       `${this.baseUrl}/members/me/boards?key=${this.apiKey}&token=${token}`
     );
+
     if (!response.ok) {
-      throw new Error("Failed to fetch boards");
+      throw new Error("failed to fetch boards");
     }
+
+    return response.json();
+  }
+
+  async createBoard(token: string, name: string) {
+    const response = await fetch(
+      `${this.baseUrl}/boards?key=${
+        this.apiKey
+      }&token=${token}&name=${encodeURIComponent(name)}&defaultLists=true`,
+      { method: "POST" }
+    );
+
+    if (!response.ok) {
+      throw new Error("failed to create boards");
+    }
+
     return response.json();
   }
 
@@ -19,13 +36,14 @@ export class TrelloAPI {
     const response = await fetch(
       `${this.baseUrl}/boards/${boardId}/lists?key=${this.apiKey}&token=${token}`
     );
+
     if (!response.ok) {
-      throw new Error("Failed to fetch lists");
+      throw new Error("failed to fetch lists");
     }
+
     return response.json();
   }
-
-  async createBoard(token: string, listId: string, data: ActionItemData) {
+  async createCard(token: string, listId: string, data: ActionItemData) {
     const response = await fetch(
       `${this.baseUrl}/cards?key=${
         this.apiKey
@@ -36,9 +54,11 @@ export class TrelloAPI {
         method: "POST",
       }
     );
+
     if (!response.ok) {
-      throw new Error("Failed to create card");
+      throw new Error("failed to create card");
     }
+
     return response.json();
   }
 }
