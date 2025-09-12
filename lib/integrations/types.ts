@@ -20,3 +20,20 @@ export interface ActionItemData{
     assignee?:string
 }
 
+/**
+ * Represents a Jira project object.
+ */
+export interface JiraProject {
+  id: string;
+  key: string;
+  name: string;
+  // Add other fields as needed
+}
+
+/**
+ * Response structure for Jira projects search API.
+ */
+export interface JiraProjectsResponse {
+  values: JiraProject[];
+  // Add other fields like total, startAt, etc. if needed
+}

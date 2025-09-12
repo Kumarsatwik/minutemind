@@ -3,7 +3,7 @@
 import React from "react";
 import { useIntegrations } from "./hooks/useIntegration";
 import SetupForm from "./components/SetupForm";
-import IntegrationCard from "./components/IntegrationCard";
+import IntegrationCard from "./components/IntegrationCards";
 
 function Integrations() {
   const {
@@ -14,8 +14,6 @@ function Integrations() {
     setupData,
     setSetupData,
     setupLoading,
-    setSetupLoading,
-    fetchIntegrations,
     fetchSetupData,
     handleConnect,
     handleDisconnect,
@@ -89,7 +87,10 @@ function Integrations() {
           <ol className="text-sm text-muted-foreground space-y-2">
             <li>1. Connect your preffered tools above</li>
             <li>2. Choose where to send action items during setup</li>
-            <li>3. In meetings, hover over action items and click "Add to"</li>
+            <li>
+              3. In meetings, hover over action items and click &quot;Add
+              to&quot;
+            </li>
             <li>
               4. Select which tool(s) to add the task to from the dropdown
             </li>

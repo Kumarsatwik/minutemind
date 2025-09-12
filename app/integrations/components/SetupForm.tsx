@@ -13,10 +13,33 @@ import {
 } from "@/components/ui/select";
 import React, { useState } from "react";
 
-interface SetupFormProps {
-  platform: string;
-  data: any;
-  onSubmit: (platform: string, config: any) => void;
+export interface ProjectItem {
+  id?: string;
+  key?: string;
+  gid?: string;
+  name: string;
+}
+
+export interface ProjectData {
+  projects?: ProjectItem[];
+  boards?: ProjectItem[];
+  workspaceId?: string;
+}
+
+export interface SetupFormConfig {
+  projectId?: string;
+  projectName?: string;
+  projectKey?: string;
+  createNew?: boolean;
+  workspaceId?: string;
+  boardId?: string;
+  boardName?: string;
+}
+
+export interface SetupFormProps {
+  platform: "jira" | "trello" | "asana";
+  data: ProjectData;
+  onSubmit: (platform: string, config: SetupFormConfig) => void;
   onCancel: () => void;
   loading: boolean;
 }
@@ -33,19 +56,9 @@ function SetupForm({
   const [createNew, setCreateNew] = useState(false);
   const [newName, setNewName] = useState("");
 
-  const items =
-    platform === "trello"
-      ? data?.boards
-      : platform === "slack"
-      ? data?.channels
-      : data?.projects;
+  const items = platform === "trello" ? data?.boards : data?.projects;
 
-  const itemLabel =
-    platform === "trello"
-      ? "board"
-      : platform === "slack"
-      ? "channel"
-      : "project";
+  const itemLabel = platform === "trello" ? "board" : "project";
 
   const handleSubmit = () => {
     if (createNew) {
@@ -75,7 +88,7 @@ function SetupForm({
             value={selectedId}
             onValueChange={(value) => {
               const selected = items?.find(
-                (item: any) =>
+                (item: ProjectItem) =>
                   item.id === value || item.key === value || item.gid === value
               );
               setSelectedId(value);
@@ -90,10 +103,10 @@ function SetupForm({
                 <SelectLabel>
                   {itemLabel.charAt(0).toUpperCase() + itemLabel.slice(1)}s
                 </SelectLabel>
-                {items?.map((item: any) => (
+                {items?.map((item: ProjectItem) => (
                   <SelectItem
                     key={item.id || item.key || item.gid}
-                    value={item.id || item.key || item.gid}
+                    value={item.id || item.key || item.gid || ""}
                   >
                     {item.name}
                   </SelectItem>
