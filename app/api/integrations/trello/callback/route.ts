@@ -1,14 +1,16 @@
 import { auth } from "@clerk/nextjs/server";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-export async function GET(request:NextRequest){
+export async function GET() {
+  const { userId } = await auth();
 
-    const {userId}=await auth()
+  if (!userId) {
+    return NextResponse.json(
+      new URL("/integrations?error=authfailed", process.env.NEXT_PUBLIC_APP_URL)
+    );
+  }
 
-    if(!userId){
-        return NextResponse.json(new URL('/integrations?error=authfailed',process.env.NEXT_PUBLIC_APP_URL))
-    }
-
-    return NextResponse.redirect(new URL('/integrations/trello/callback',process.env.NEXT_PUBLIC_APP_URL))
-
+  return NextResponse.redirect(
+    new URL("/integrations/trello/callback", process.env.NEXT_PUBLIC_APP_URL)
+  );
 }

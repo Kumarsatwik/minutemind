@@ -1,10 +1,13 @@
 import prisma from "@/lib/db";
 import { JiraAPI } from "@/lib/integrations/jira/jira";
 import { refreshJiraToken } from "@/lib/integrations/jira/refreshToken";
+import { JiraProjectsResponse } from "@/lib/integrations/types";
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 
-async function getValidToken(integration: any) {
+import { UserIntegration } from "@prisma/client";
+
+async function getValidToken(integration: UserIntegration) {
   if (integration.expiresAt && new Date() > integration.expiresAt) {
     const updated = await refreshJiraToken(integration);
     return updated.accessToken;
@@ -36,10 +39,10 @@ export async function GET() {
     const validToken = await getValidToken(integration);
     const jira = new JiraAPI();
 
-    const projects = await jira.getProjects(
+    const projects = (await jira.getProjects(
       validToken,
       integration.workspaceId
-    );
+    )) as JiraProjectsResponse;
     return NextResponse.json({
       projects: projects.values || [],
     });
@@ -110,10 +113,10 @@ export async function POST(request: NextRequest) {
         );
       }
     } else if (projectId) {
-      const projects = await jira.getProjects(
+      const projects = (await jira.getProjects(
         validToken,
         integration.workspaceId
-      );
+      )) as JiraProjectsResponse;
       const selectedProject = projects.values.find((p) => p.id === projectId);
 
       if (!selectedProject) {

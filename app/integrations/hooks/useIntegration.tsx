@@ -2,6 +2,8 @@ import { useAuth } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 
 // Interface defining the structure of an integration platform
+import { ProjectData, SetupFormConfig } from "../components/SetupForm";
+
 export interface Integration {
   platform: "google-calendar" | "trello" | "jira" | "asana" | "slack";
   name: string;
@@ -9,9 +11,10 @@ export interface Integration {
   connected: boolean;
   boardName?: string; // For Trello integration
   projectName?: string; // For Jira/Asana integration
-  channelName?: string; // For Slack integration
   logo: string;
 }
+
+export type SetupMode = "trello" | "jira" | "asana" | null;
 
 // Custom hook to manage integration states and operations
 export function useIntegrations() {
@@ -19,14 +22,6 @@ export function useIntegrations() {
 
   // Initialize integrations with default values
   const [integrations, setIntegrations] = useState<Integration[]>([
-    {
-      platform: "slack",
-      name: "Slack",
-      description: "Post meeting summaries to your Slack channels",
-      connected: false,
-      channelName: undefined,
-      logo: "/slack.png",
-    },
     {
       platform: "trello",
       name: "Trello",
@@ -59,10 +54,10 @@ export function useIntegrations() {
 
   // State management for loading and setup processes
   const [loading, setLoading] = useState(true);
-  const [setupMode, setSetupMode] = useState<string | null>(null);
-  const [setupData, setSetupData] = useState<Record<string, unknown> | null>(
-    null
-  );
+  const [setupMode, setSetupMode] = useState<
+    "trello" | "jira" | "asana" | null
+  >(null);
+  const [setupData, setSetupData] = useState<ProjectData | null>(null);
   const [setupLoading, setSetupLoading] = useState(false);
 
   // Effect to fetch integrations on component mount and handle setup mode
@@ -74,7 +69,10 @@ export function useIntegrations() {
     // /integrations/setup=trello
     const urlParams = new URLSearchParams(window.location.search);
     const setup = urlParams.get("setup");
-    if (setup && ["trello", "jira", "asana", "slack"].includes(setup)) {
+    if (
+      setup &&
+      (setup === "trello" || setup === "jira" || setup === "asana")
+    ) {
       setSetupMode(setup);
       fetchSetupData(setup);
     }
@@ -166,8 +164,8 @@ export function useIntegrations() {
 
   // Handle submitting setup configuration for an integration
   const handleSetupSubmit = async (
-    platform: string,
-    config: Record<string, unknown>
+    platform: "trello" | "jira" | "asana",
+    config: SetupFormConfig
   ) => {
     setSetupLoading(true);
     try {
