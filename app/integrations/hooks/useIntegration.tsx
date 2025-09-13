@@ -11,6 +11,7 @@ export interface Integration {
   connected: boolean;
   boardName?: string; // For Trello integration
   projectName?: string; // For Jira/Asana integration
+  channelName?: string; // For Slack integration
   logo: string;
 }
 
