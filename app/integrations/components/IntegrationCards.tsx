@@ -4,13 +4,25 @@ import Image from "next/image";
 import { Check, ExternalLink, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+/**
+ * Props for the IntegrationCard component
+ */
 interface IntegrationCardProps {
+  /** The integration data to display */
   integration: Integration;
+  /** Callback function when user clicks connect */
   onConnect: (platform: string) => void;
+  /** Callback function when user clicks disconnect */
   onDisconnect: (platform: string) => void;
+  /** Callback function when user clicks setup/settings */
   onSetup: (platform: string) => void;
 }
 
+/**
+ * IntegrationCard component displays an individual integration card
+ * showing the integration's logo, name, description, connection status,
+ * and action buttons for connecting/disconnecting or setup.
+ */
 function IntegrationCard({
   integration,
   onConnect,
@@ -47,6 +59,7 @@ function IntegrationCard({
         {integration.description}
       </p>
 
+      {/* Display destination info for connected integrations (except Google Calendar) */}
       {integration.connected &&
         integration.platform !== "google-calendar" &&
         (integration.boardName ||
@@ -57,16 +70,20 @@ function IntegrationCard({
               Destination:
             </div>
             <div className="text-sm font-medium text-foreground">
+              {/* Display channel name with # prefix for Slack */}
               {integration.platform === "slack" &&
                 integration.channelName &&
                 `#${integration.channelName}`}
+              {/* Display board name for Trello */}
               {integration.platform === "trello" && integration.boardName}
+              {/* Display project name for Jira and Asana */}
               {integration.platform === "jira" && integration.projectName}
               {integration.platform === "asana" && integration.projectName}
             </div>
           </div>
         )}
 
+      {/* Special status display for Google Calendar */}
       {integration.connected && integration.platform === "google-calendar" && (
         <div className="mb-4 p-3 bg-muted/50 rounded-lg">
           <div className="text-xs text-muted-foreground mb-1">Status:</div>
@@ -76,9 +93,11 @@ function IntegrationCard({
         </div>
       )}
 
+      {/* Action buttons - different layouts based on connection status and platform */}
       <div className="flex gap-2">
         {integration.connected ? (
           integration.platform === "google-calendar" ? (
+            // Google Calendar only has disconnect option
             <Button
               variant="outline"
               onClick={() => onDisconnect(integration.platform)}
@@ -88,6 +107,7 @@ function IntegrationCard({
               Disconnect
             </Button>
           ) : (
+            // Other platforms have disconnect and setup buttons
             <>
               <Button
                 variant="outline"
@@ -108,6 +128,7 @@ function IntegrationCard({
             </>
           )
         ) : (
+          // Not connected - show connect button
           <Button
             onClick={() => onConnect(integration.platform)}
             className="flex-1 flex items-center justify-center gap-2 cursor-pointer"

@@ -7,22 +7,37 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { UserIntegration } from "@prisma/client";
 
+/**
+ * Ensures we have a valid (non-expired) Jira access token.
+ * If the current token is expired, refreshes it using the refresh token.
+ * @param integration - The user's Jira integration record from database
+ * @returns A valid access token for Jira API calls
+ */
 async function getValidToken(integration: UserIntegration) {
+  // Check if token is expired and refresh if needed
   if (integration.expiresAt && new Date() > integration.expiresAt) {
     const updated = await refreshJiraToken(integration);
     return updated.accessToken;
   }
 
+  // Token is still valid, return as-is
   return integration.accessToken;
 }
 
+/**
+ * GET handler - Fetches available Jira projects for the authenticated user.
+ * Used by the frontend to populate project selection dropdown during setup.
+ * @returns JSON response with array of available Jira projects
+ */
 export async function GET() {
+  // Authenticate user
   const { userId } = await auth();
 
   if (!userId) {
     return NextResponse.json({ error: "unauthoarized" }, { status: 401 });
   }
 
+  // Verify user has Jira integration configured
   const integration = await prisma.userIntegration.findUnique({
     where: {
       userId_platform: {
@@ -36,13 +51,17 @@ export async function GET() {
   }
 
   try {
+    // Get valid access token (refresh if expired)
     const validToken = await getValidToken(integration);
     const jira = new JiraAPI();
 
+    // Fetch projects from Jira API
     const projects = (await jira.getProjects(
       validToken,
       integration.workspaceId
     )) as JiraProjectsResponse;
+
+    // Return projects list to frontend
     return NextResponse.json({
       projects: projects.values || [],
     });
@@ -55,9 +74,18 @@ export async function GET() {
   }
 }
 
+/**
+ * POST handler - Configures Jira project destination for the integration.
+ * Supports both selecting existing projects and creating new ones.
+ * Updates the user's integration record with the selected/created project details.
+ * @param request - Contains projectId, projectName, projectKey, createNew flags
+ * @returns JSON response with success status and project details
+ */
 export async function POST(request: NextRequest) {
+  // Authenticate user
   const { userId } = await auth();
 
+  // Parse request body for project configuration
   const { projectId, projectName, projectKey, createNew } =
     await request.json();
 
@@ -65,6 +93,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "unauthoarized" }, { status: 401 });
   }
 
+  // Verify user has Jira integration configured
   const integration = await prisma.userIntegration.findUnique({
     where: {
       userId_platform: {
@@ -78,27 +107,34 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    // Get valid access token
     const validToken = await getValidToken(integration);
-
     const jira = new JiraAPI();
 
+    // Initialize final project variables
     let finalProjectId = projectId;
     let finalProjectName = projectName;
     let finalProjectKey = projectKey;
 
+    // Handle creating a new project
     if (createNew && projectName) {
       try {
+        // Generate suggested project key from name (uppercase, alphanumeric, max 10 chars)
         const suggestedKey = projectName
           .toUpperCase()
           .replace(/[^A-Z0-9]/g, "")
           .substring(0, 10);
         const key = projectKey || suggestedKey;
+
+        // Create new project via Jira API
         const newProject = await jira.createProject(
           validToken,
           integration.workspaceId,
           projectName,
           key
         );
+
+        // Update final project details with created project
         finalProjectId = newProject.id;
         finalProjectName = projectName;
         finalProjectKey = newProject.key;
@@ -112,11 +148,16 @@ export async function POST(request: NextRequest) {
           { status: 403 }
         );
       }
-    } else if (projectId) {
+    }
+    // Handle selecting an existing project
+    else if (projectId) {
+      // Fetch available projects to validate selection
       const projects = (await jira.getProjects(
         validToken,
         integration.workspaceId
       )) as JiraProjectsResponse;
+
+      // Find the selected project
       const selectedProject = projects.values.find((p) => p.id === projectId);
 
       if (!selectedProject) {
@@ -126,9 +167,12 @@ export async function POST(request: NextRequest) {
         );
       }
 
+      // Update final project details with selected project
       finalProjectKey = selectedProject.key;
       finalProjectName = selectedProject.name;
-    } else {
+    }
+    // Invalid request - neither creating new nor selecting existing
+    else {
       return NextResponse.json(
         {
           error:
@@ -138,6 +182,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Save project configuration to database
     await prisma.userIntegration.update({
       where: {
         id: integration.id,
@@ -148,6 +193,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // Return success response with project details
     return NextResponse.json({
       success: true,
       projectId: finalProjectKey,

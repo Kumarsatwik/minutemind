@@ -3,13 +3,20 @@ import { TrelloAPI } from "@/lib/integrations/trello/trello";
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 
+/**
+ * GET handler - Fetches available Trello boards for the authenticated user.
+ * Used by the frontend to populate board selection dropdown during setup.
+ * @returns JSON response with array of available Trello boards
+ */
 export async function GET() {
+  // Authenticate user
   const { userId } = await auth();
 
   if (!userId) {
     return NextResponse.json({ error: "unauthoarized" }, { status: 401 });
   }
 
+  // Verify user has Trello integration configured
   const integration = await prisma.userIntegration.findUnique({
     where: {
       userId_platform: {
@@ -26,8 +33,10 @@ export async function GET() {
   try {
     const trello = new TrelloAPI();
 
+    // Fetch boards from Trello API
     const boards = await trello.getBoards(integration.accessToken);
 
+    // Return boards list to frontend
     return NextResponse.json({ boards });
   } catch (error) {
     console.error("error fetching trello boards:", error);
@@ -38,15 +47,25 @@ export async function GET() {
   }
 }
 
+/**
+ * POST handler - Configures Trello board destination for the integration.
+ * Supports both selecting existing boards and creating new ones.
+ * Updates the user's integration record with the selected/created board details.
+ * @param request - Contains boardId, boardName, createNew flags
+ * @returns JSON response with success status and board details
+ */
 export async function POST(request: NextRequest) {
+  // Authenticate user
   const { userId } = await auth();
 
+  // Parse request body for board configuration
   const { boardId, boardName, createNew } = await request.json();
 
   if (!userId) {
     return NextResponse.json({ error: "unauthoarized" }, { status: 401 });
   }
 
+  // Verify user has Trello integration configured
   const integration = await prisma.userIntegration.findUnique({
     where: {
       userId_platform: {
@@ -62,19 +81,24 @@ export async function POST(request: NextRequest) {
   try {
     const trello = new TrelloAPI();
 
+    // Initialize final board variables
     let finalBoardId = boardId;
     let finalBoardName = boardName;
 
+    // Handle creating a new board
     if (createNew && boardName) {
+      // Create new board via Trello API
       const newBoard = await trello.createBoard(
         integration.accessToken,
         boardName
       );
 
+      // Update final board details with created board
       finalBoardId = newBoard.id;
       finalBoardName = newBoard.name;
     }
 
+    // Save board configuration to database
     await prisma.userIntegration.update({
       where: {
         id: integration.id,
@@ -85,6 +109,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // Return success response with board details
     return NextResponse.json({
       success: true,
       boardId: finalBoardId,
