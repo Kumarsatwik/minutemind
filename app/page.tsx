@@ -9,7 +9,7 @@ import CTASection from "./components/landing/CTASection";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-black">
+    <main className="min-h-screen bg-black">
       <HeroSection />
       <FeaturesSection />
       <IntegrationsSection />
@@ -18,6 +18,6 @@ export default function Home() {
       <MoreFeaturesSection />
       <CTASection />
       <Footer />
-    </div>
+    </main>
   );
 }
