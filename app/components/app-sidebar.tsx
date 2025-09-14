@@ -112,7 +112,7 @@ export function AppSidebar() {
             <Bot className="w-4 h-4" />
           </div>
           <span className="text-lg font-semibold text-sidebar-foreground">
-            MeetingBot
+            MinuteMind
           </span>
         </div>
       </SidebarHeader>

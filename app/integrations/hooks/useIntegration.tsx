@@ -1,28 +1,49 @@
 import { useAuth } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 
-// Interface defining the structure of an integration platform
-import { ProjectData, SetupFormConfig } from "../components/SetupForm";
-
+/**
+ * Interface defining the structure of an integration platform configuration.
+ * Represents the state and metadata for each supported integration.
+ */
 export interface Integration {
+  /** Unique identifier for the integration platform */
   platform: "google-calendar" | "trello" | "jira" | "asana" | "slack";
+  /** Display name of the integration */
   name: string;
+  /** Description of what the integration does */
   description: string;
+  /** Whether the user has connected this integration */
   connected: boolean;
-  boardName?: string; // For Trello integration
-  projectName?: string; // For Jira/Asana integration
-  channelName?: string; // For Slack integration
+  /** Name of the connected Trello board (only for Trello) */
+  boardName?: string;
+  /** Name of the connected project (for Jira/Asana) */
+  projectName?: string;
+  /** Name of the connected Slack channel (only for Slack) */
+  channelName?: string;
+  /** Path to the integration's logo image */
   logo: string;
 }
 
-export type SetupMode = "trello" | "jira" | "asana" | null;
-
-// Custom hook to manage integration states and operations
+/**
+ * Custom hook for managing third-party integrations state and operations.
+ * Handles fetching integration status, OAuth connections, disconnections,
+ * and setup configuration for supported platforms.
+ *
+ * @returns Object containing integration state and handler functions
+ */
 export function useIntegrations() {
   const { userId } = useAuth();
 
-  // Initialize integrations with default values
+  // Default integrations configuration - defines all supported platforms
   const [integrations, setIntegrations] = useState<Integration[]>([
+    {
+      platform: "slack",
+      name: "Slack",
+      description: "Post meeting summaries to your Slack channels",
+      connected: false,
+      channelName: undefined,
+      logo: "/slack.png",
+    },
     {
       platform: "trello",
       name: "Trello",
@@ -53,44 +74,52 @@ export function useIntegrations() {
     },
   ]);
 
-  // State management for loading and setup processes
+  // Loading state for initial integration data fetch
   const [loading, setLoading] = useState(true);
-  const [setupMode, setSetupMode] = useState<
-    "trello" | "jira" | "asana" | null
-  >(null);
-  const [setupData, setSetupData] = useState<ProjectData | null>(null);
+
+  // Current platform being configured in setup mode (null when not in setup)
+  const [setupMode, setSetupMode] = useState<string | null>(null);
+
+  // Data for the setup form (projects/boards/channels available for selection)
+  const [setupData, setSetupData] = useState<any>(null);
+
+  // Loading state during setup form submission
   const [setupLoading, setSetupLoading] = useState(false);
 
-  // Effect to fetch integrations on component mount and handle setup mode
+  // Initialize integrations data and handle URL-based setup mode
   useEffect(() => {
+    // Fetch integration status when user is authenticated
     if (userId) {
       fetchIntegrations();
     }
-    // if query params has ["trello","jira","asana","slack"] then set setup mode to the query param
-    // /integrations/setup=trello
+
+    // Check URL parameters for setup mode (e.g., ?setup=trello)
     const urlParams = new URLSearchParams(window.location.search);
     const setup = urlParams.get("setup");
-    if (
-      setup &&
-      (setup === "trello" || setup === "jira" || setup === "asana")
-    ) {
+    if (setup && ["trello", "jira", "asana", "slack"].includes(setup)) {
       setSetupMode(setup);
       fetchSetupData(setup);
     }
   }, [userId]);
 
-  // Fetch the current status of all integrations
+  /**
+   * Fetches the current status of all user integrations from the backend.
+   * Updates the integrations state with connection status and destination details.
+   */
   const fetchIntegrations = async () => {
     try {
+      // Fetch general integration status
       const response = await fetch("/api/integrations/status");
       const data = await response.json();
 
-      // Special handling for Google Calendar status
+      // Fetch Google Calendar status separately (different API endpoint)
       const calendarResponse = await fetch("/api/user/calendar-status");
       const calendarData = await calendarResponse.json();
 
+      // Update integrations state with fetched data
       setIntegrations((prev) =>
         prev.map((integration) => {
+          // Special handling for Google Calendar
           if (integration.platform === "google-calendar") {
             return {
               ...integration,
@@ -98,15 +127,12 @@ export function useIntegrations() {
             };
           }
 
+          // Find status data for this integration
           const status = data.find(
-            (d: {
-              platform: string;
-              connected: boolean;
-              boardName?: string;
-              projectName?: string;
-              channelName?: string;
-            }) => d.platform === integration.platform
+            (d: any) => d.platform === integration.platform
           );
+
+          // Update integration with status data
           return {
             ...integration,
             connected: status?.connected || false,
@@ -123,7 +149,11 @@ export function useIntegrations() {
     }
   };
 
-  // Fetch setup data for a specific platform
+  /**
+   * Fetches setup data for a specific platform (projects, boards, channels).
+   * Used to populate the setup form with available destinations.
+   * @param platform - The integration platform to fetch setup data for
+   */
   const fetchSetupData = async (platform: string) => {
     try {
       const response = await fetch(`/api/integrations/${platform}/setup`);
@@ -134,20 +164,30 @@ export function useIntegrations() {
     }
   };
 
-  // Handle connecting to different integration platforms
+  /**
+   * Initiates the OAuth connection flow for a specific platform.
+   * Redirects the user to the appropriate authorization endpoint.
+   * @param platform - The integration platform to connect
+   */
   const handleConnect = (platform: string) => {
+    // Different platforms use different OAuth endpoints
     if (platform === "slack") {
       window.location.href = "/api/slack/install?return=integrations";
     } else if (platform === "google-calendar") {
       window.location.href = "/api/auth/google/direct-connect";
     } else {
+      // Trello, Jira, Asana use the standard auth flow
       window.location.href = `/api/integrations/${platform}/auth`;
     }
   };
 
-  // Handle disconnecting from integration platforms
+  /**
+   * Disconnects an integration and refreshes the integration status.
+   * @param platform - The integration platform to disconnect
+   */
   const handleDisconnect = async (platform: string) => {
     try {
+      // Google Calendar uses a different disconnect endpoint
       if (platform === "google-calendar") {
         await fetch("/api/auth/google/disconnect", {
           method: "POST",
@@ -157,19 +197,24 @@ export function useIntegrations() {
           method: "POST",
         });
       }
+
+      // Refresh integration status after disconnection
       fetchIntegrations();
     } catch (error) {
       console.error("error disconnecting:", error);
     }
   };
 
-  // Handle submitting setup configuration for an integration
-  const handleSetupSubmit = async (
-    platform: "trello" | "jira" | "asana",
-    config: SetupFormConfig
-  ) => {
+  /**
+   * Submits setup configuration for an integration platform.
+   * Saves the destination (project/board/channel) and refreshes integration status.
+   * @param platform - The integration platform being configured
+   * @param config - The setup configuration (project/board/channel selection)
+   */
+  const handleSetupSubmit = async (platform: string, config: any) => {
     setSetupLoading(true);
     try {
+      // Submit setup configuration to backend
       const response = await fetch(`/api/integrations/${platform}/setup`, {
         method: "POST",
         headers: {
@@ -177,10 +222,13 @@ export function useIntegrations() {
         },
         body: JSON.stringify(config),
       });
+
       if (response.ok) {
+        // Clear setup mode and data on success
         setSetupMode(null);
         setSetupData(null);
 
+        // Refresh integration status and clean up URL
         fetchIntegrations();
         window.history.replaceState({}, "", "/integrations");
       }
@@ -191,7 +239,6 @@ export function useIntegrations() {
     }
   };
 
-  // Return all necessary states and handlers
   return {
     integrations,
     loading,

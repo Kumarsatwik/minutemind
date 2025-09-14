@@ -10,10 +10,10 @@ function Footer() {
             <div className="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center">
               <Bot className="w-5 h-5 text-gray-300" />
             </div>
-            <span className="text-xl font-bold text-white">MeetingBot</span>
+            <span className="text-xl font-bold text-white">MinuteMind</span>
           </div>
           <div className="text-gray-500 text-sm">
-            &copy; {new Date().getFullYear()} MeetingBot. Made with ❤️ for
+            &copy; {new Date().getFullYear()} MinuteMind. Made with ❤️ for
             better meetings.
           </div>
         </div>

@@ -33,7 +33,14 @@ export const metadata: Metadata = {
     "Google Calendar",
     "productivity",
     "team collaboration",
-    "meeting minutes"
+    "meeting minutes",
+    "meeting bot",
+    "AI assistant",
+    "meeting automation",
+    "meeting summaries",
+    "task tracking",
+    "Slack integration",
+    "meeting insights"
   ],
   authors: [{ name: "MinuteMind Team" }],
   creator: "MinuteMind",
@@ -56,7 +63,7 @@ export const metadata: Metadata = {
     siteName: "MinuteMind",
     images: [
       {
-        url: "/og-image.jpg",
+        url: "/logo.jpg",
         width: 1200,
         height: 630,
         alt: "MinuteMind - AI-Powered Meeting Management",
@@ -67,7 +74,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "MinuteMind - AI-Powered Meeting Management",
     description: "Transform your meetings with AI-powered note-taking, action item tracking, and seamless integration with Trello, Jira, Asana, and Google Calendar.",
-    images: ["/og-image.jpg"],
+    images: ["/logo.jpg"],
     creator: "@minutemind",
   },
   robots: {
@@ -94,6 +101,58 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html>
+        <head>
+          <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+          <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+          <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+          <link rel="manifest" href="/site.webmanifest" />
+          <meta name="msapplication-TileColor" content="#da532c" />
+          <meta name="theme-color" content="#ffffff" />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "Organization",
+                "name": "MinuteMind",
+                "url": process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+                "logo": `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/logo.jpg`,
+                "description": "Transform your meetings with AI-powered note-taking, action item tracking, and seamless integration with Trello, Jira, Asana, and Google Calendar.",
+                "foundingDate": "2023",
+                "sameAs": [
+                  "https://twitter.com/minutemind"
+                ]
+              })
+            }}
+          />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "Product",
+                "name": "MinuteMind - AI-Powered Meeting Management",
+                "description": "AI-powered meeting assistant for automatic summaries, action items, and integrations with popular tools.",
+                "brand": {
+                  "@type": "Brand",
+                  "name": "MinuteMind"
+                },
+                "offers": {
+                  "@type": "Offer",
+                  "price": "0",
+                  "priceCurrency": "USD",
+                  "availability": "https://schema.org/InStock",
+                  "description": "Free forever plan available"
+                },
+                "aggregateRating": {
+                  "@type": "AggregateRating",
+                  "ratingValue": "4.8",
+                  "reviewCount": "150"
+                }
+              })
+            }}
+          />
+        </head>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
