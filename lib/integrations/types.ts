@@ -15,7 +15,7 @@ export interface IntegrationConfig{
  */
 export interface ActionItemData{
     title:string
-    description:string
+    description?:string
     dueDate?:string
     assignee?:string
 }
