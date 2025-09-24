@@ -80,19 +80,45 @@ function CustomAudioPlayer({
     audio.currentTime = newTime;
   };
 
-  // Handle click on volume slider to adjust volume
+  /**
+   * Handles user interaction with the volume slider by calculating the new volume
+   * based on the click position within the slider and updating both the audio element
+   * and the component's state accordingly.
+   * @param e - The mouse event triggered by clicking on the volume slider.
+   */
   const handleVolumeChange = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Retrieve the underlying HTML audio element via the player reference.
+    // This allows direct manipulation of the audio properties.
     const audio = playerRef.current?.audio?.current;
-    if (!audio) {  // Note: duration check removed as it's not relevant for volume
+
+    // Early return if the audio element is not yet available (e.g., before loading).
+    // Note: A previous duration check was removed here since volume adjustment
+    // does not depend on the audio duration.
+    if (!audio) {
       return;
     }
 
+    // Obtain the bounding client rectangle of the volume slider element.
+    // This provides the position and dimensions relative to the viewport.
     const rect = e.currentTarget.getBoundingClientRect();
+
+    // Calculate the x-coordinate of the click relative to the left edge of the slider.
+    // This determines where along the slider the user clicked.
     const clickX = e.clientX - rect.left;
+
+    // Get the total width of the volume slider for normalization.
     const width = rect.width;
+
+    // Compute the new volume level as a fraction of the slider width (0 to 1).
+    // Math.max and Math.min ensure the value is clamped within valid bounds,
+    // preventing errors from clicks outside the slider area.
     const newVolume = Math.max(0, Math.min(1, clickX / width));
 
+    // Apply the calculated volume to the audio element, which immediately affects playback.
     audio.volume = newVolume;
+
+    // Update the component's local state to synchronize the UI (e.g., slider visual position)
+    // with the new volume value.
     setVolume(newVolume);
   };
 
