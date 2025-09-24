@@ -26,7 +26,7 @@ interface MeetingInfoProps {
  * @param {MeetingInfoProps} props - Component props including meeting data
  * @returns {JSX.Element} - Rendered meeting info section
  */
-export const MeetingInfo: React.FC<MeetingInfoProps> = ({ meetingData }) => {
+const MeetingInfo: React.FC<MeetingInfoProps> = ({ meetingData }) => {
   // Fetch current user data from Clerk for avatar
   const { user } = useUser();
 
@@ -36,7 +36,7 @@ export const MeetingInfo: React.FC<MeetingInfoProps> = ({ meetingData }) => {
       <h2 className="text-3xl font-bold text-foreground mb-3">
         {meetingData.title}
       </h2>
-      
+
       {/* Meeting metadata: owner, date, time */}
       <div className="text-sm text-muted-foreground mb-8 flex items-center gap-4 flex-wrap">
         {/* Owner avatar and name */}
@@ -62,7 +62,7 @@ export const MeetingInfo: React.FC<MeetingInfoProps> = ({ meetingData }) => {
           </div>
           {meetingData.userName}
         </span>
-        
+
         {/* Date with calendar icon */}
         <span>
           <svg
@@ -82,10 +82,11 @@ export const MeetingInfo: React.FC<MeetingInfoProps> = ({ meetingData }) => {
           </svg>{" "}
           {meetingData.date} at
         </span>
-        
+
         {/* Time */}
         <span className="flex items-center gap-1">{meetingData.time}</span>
       </div>
     </div>
   );
 };
+export default MeetingInfo;

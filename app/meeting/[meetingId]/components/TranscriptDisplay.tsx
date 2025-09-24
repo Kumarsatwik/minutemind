@@ -20,12 +20,13 @@ interface TranscriptSegment {
  * Props for the TranscriptDisplay component.
  */
 interface TranscriptDisplayProps {
-  transcript: TranscriptSegment[]; // Full transcript divided into speaker segments
+  transcript: string | TranscriptSegment[]; // Full transcript as string or divided into speaker segments
 }
 
 /**
  * Component to display the meeting transcript in a readable format.
- * Renders segments by speaker with timestamps and concatenated word text.
+ * Handles both string transcripts (plain text) and structured segments by speaker with timestamps.
+ * For string transcripts, displays as plain text. For segments, renders with speaker labels and times.
  * Handles empty transcript state with a fallback message.
  *
  * @param {TranscriptDisplayProps} props - Component props including the transcript data
@@ -71,6 +72,22 @@ export default function TranscriptDisplay({
     return (
       <div className="bg-card rounded-lg p-6 border border-border text-center">
         <p className="text-text-foreground">No transcript available.</p>
+      </div>
+    );
+  }
+
+  // Handle string transcript
+  if (typeof transcript === "string") {
+    return (
+      <div className="bg-white rounded-lg p-6 border border-border">
+        <h3 className="text-lg font-semibold text-foreground mb-4">
+          Meeting Transcript
+        </h3>
+        <div className="max-h-96 overflow-y-auto">
+          <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
+            {transcript}
+          </p>
+        </div>
       </div>
     );
   }
