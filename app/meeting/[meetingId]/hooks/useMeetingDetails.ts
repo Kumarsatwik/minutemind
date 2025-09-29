@@ -286,7 +286,7 @@ export function useMeetingDetails() {
       }
     : {
         title: "loading...",
-        data: "loading...",
+        date: "loading...",
         time: "loading...",
         userName: "loading...",
       };

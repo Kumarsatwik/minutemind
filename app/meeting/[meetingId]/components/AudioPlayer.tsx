@@ -133,122 +133,152 @@ function CustomAudioPlayer({
   };
 
   return (
-    <div
-      className={`fixed bottom-0 bg-card border-t border-border p-5 ${
-        !isOwner ? "left-0 right-0" : ""
-      }`}
-      style={
-        isOwner ? { left: "var(--sidebar-width, 16rem)", right: "24rem" } : {}
-      }
-    >
-      <div style={{ display: "none" }}>
-        <AudioPlayer
-          ref={playerRef}
-          src={recordingUrl}
-          onPlay={() => setIsPlaying(true)}
-          onPause={() => setIsPlaying(false)}
-          onEnded={() => setIsPlaying(false)}
-          onListen={(e) => {
-            const audio = e.target as HTMLAudioElement;
-            if (audio && audio.currentTime) {
-              setCurrentTime(audio.currentTime);
-            }
-          }}
-          onLoadedMetaData={(e) => {
-            const audio = e.target as HTMLAudioElement;
-            if (audio && audio.duration) {
-              setDuration(audio.duration);
-            }
-          }}
-          volume={volume}
-          hasDefaultKeyBindings={true}
-          autoPlayAfterSrcChange={false}
-          showSkipControls={false}
-          showJumpControls={false}
-          showDownloadProgress={false}
-          showFilledProgress={false}
-        />
-      </div>
+    <>
+      {/* 
+       * The main container for the audio player, positioned fixed at the bottom of the screen.
+       * It uses conditional styling based on whether the user is the meeting owner:
+       * - For owners: Offset to account for sidebar and right panel widths.
+       * - For non-owners: Full width across the bottom.
+       * This ensures the player doesn't overlap with other UI elements.
+       */}
+      <div
+        className={`fixed bottom-0 bg-card border-t border-border p-5 ${
+          !isOwner ? "left-0 right-0" : ""
+        }`}
+        style={
+          isOwner ? { left: "var(--sidebar-width, 16rem)", right: "24rem" } : {}
+        }
+      >
+        {/* 
+         * Hidden wrapper for the underlying AudioPlayer component from react-h5-audio-player.
+         * This component handles the actual audio playback logic but is visually hidden
+         * (display: none) to allow for a custom UI implementation below.
+         * Event handlers update the component state for play status, time, duration, etc.
+         */}
+        <div style={{ display: "none" }}>
+          <AudioPlayer
+            ref={playerRef}
+            src={recordingUrl}
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+            onEnded={() => setIsPlaying(false)}
+            onListen={(e) => {
+              const audio = e.target as HTMLAudioElement;
+              if (audio && audio.currentTime) {
+                setCurrentTime(audio.currentTime);
+              }
+            }}
+            onLoadedMetaData={(e) => {
+              const audio = e.target as HTMLAudioElement;
+              if (audio && audio.duration) {
+                setDuration(audio.duration);
+              }
+            }}
+            volume={volume}
+            hasDefaultKeyBindings={true}
+            autoPlayAfterSrcChange={false}
+            showSkipControls={false}
+            showJumpControls={false}
+            showDownloadProgress={false}
+            showFilledProgress={false}
+          />
+        </div>
 
-      <div className={!isOwner ? "max-w-4xl mx-auto" : ""}>
-        {/* Main audio controls row */}
-        <div className="flex items-center gap-4">
-          {/* Skip and play/pause buttons */}
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleSkipBack}
-              className="hover:bg-muted rounded-lg transition-colors cursor-pointer"
-            >
-              <SkipBack className="h-4 w-4 text-foreground" />
-            </Button>
-    
-            <Button
-              variant="default"
-              size="icon"
-              onClick={handlePlayPause}
-              className="bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-colors cursor-pointer"
-            >
-              {isPlaying ? (
-                <Pause className="h-5 w-5" />
-              ) : (
-                <Play className="h-5 w-5" />
-              )}
-            </Button>
-    
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleSkipForward}
-              className="hover:bg-muted rounded-lg transition-colors cursor-pointer"
-            >
-              <SkipForward className="h-4 w-4" />
-            </Button>
-          </div>
-    
-          {/* Progress bar with time labels */}
-          <div className="flex-1 flex items-center gap-3">
-            <span className="text-sm text-muted-foreground min-w-[40px]">
-              {formatTime(currentTime)}
-            </span>
-    
-            <div
-              className="flex-1 bg-muted rounded-full h-2 cursor-pointer"
-              onClick={handleProgressClick}
-            >
-              <div
-                className="bg-primary h-2 rounded-full transition-all duration-300"
-                style={{
-                  width: `${duration ? (currentTime / duration) * 100 : 0}%`,
-                }}
-              />
+        {/* 
+         * Container for the visible custom UI controls.
+         * Centers the controls horizontally with max-width when not in owner mode
+         * to prevent them from spanning the full screen width unnecessarily.
+         */}
+        <div className={!isOwner ? "max-w-4xl mx-auto" : ""}>
+          {/* Main audio controls row - Horizontal layout for all player elements */}
+          <div className="flex items-center gap-4">
+            {/* Skip and play/pause buttons - Grouped navigation controls */}
+            <div className="flex items-center gap-3">
+              {/* Skip backward button - Rewinds audio by 10 seconds */}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleSkipBack}
+                className="hover:bg-muted rounded-lg transition-colors cursor-pointer"
+              >
+                <SkipBack className="h-4 w-4 text-foreground" />
+              </Button>
+
+              {/* Play/Pause toggle button - Primary control for starting/stopping playback.
+               * Icon changes based on isPlaying state. */}
+              <Button
+                variant="default"
+                size="icon"
+                onClick={handlePlayPause}
+                className="bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-colors cursor-pointer"
+              >
+                {isPlaying ? (
+                  <Pause className="h-5 w-5" />
+                ) : (
+                  <Play className="h-5 w-5" />
+                )}
+              </Button>
+
+              {/* Skip forward button - Advances audio by 10 seconds */}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleSkipForward}
+                className="hover:bg-muted rounded-lg transition-colors cursor-pointer"
+              >
+                <SkipForward className="h-4 w-4" />
+              </Button>
             </div>
-    
-            <span className="text-sm text-muted-foreground min-w-[40px]">
-              {formatTime(duration)}
-            </span>
-          </div>
-    
-          {/* Volume control */}
-          <div className="flex items-center gap-2">
-            <Volume2 className="h-4 w-4 text-muted-foreground" />
-            <div
-              className="w-20 bg-muted rounded-full h-2 cursor-pointer"
-              onClick={handleVolumeChange}
-            >
+
+            {/* Progress bar with time labels - Displays current position and total duration */}
+            <div className="flex-1 flex items-center gap-3">
+              {/* Current time label - Shows elapsed time in MM:SS format */}
+              <span className="text-sm text-muted-foreground min-w-[40px]">
+                {formatTime(currentTime)}
+              </span>
+
+              {/* Progress bar container - Clickable to seek to a specific time.
+               * Inner div represents the filled portion based on currentTime/duration. */}
               <div
-                className="bg-primary h-2 rounded-full"
-                style={{ width: `${volume * 100}%` }}
-              />
+                className="flex-1 bg-muted rounded-full h-2 cursor-pointer"
+                onClick={handleProgressClick}
+              >
+                <div
+                  className="bg-primary h-2 rounded-full transition-all duration-300"
+                  style={{
+                    width: `${duration ? (currentTime / duration) * 100 : 0}%`,
+                  }}
+                />
+              </div>
+
+              {/* Total duration label - Shows full audio length in MM:SS format */}
+              <span className="text-sm text-muted-foreground min-w-[40px]">
+                {formatTime(duration)}
+              </span>
             </div>
+
+            {/* Volume control - Simple slider for adjusting audio volume */}
+            <div className="flex items-center gap-2">
+              {/* Volume icon - Visual indicator for the volume control */}
+              <Volume2 className="h-4 w-4 text-muted-foreground" />
+              {/* Volume slider - Clickable bar where position sets volume (0-100%) */}
+              <div
+                className="w-20 bg-muted rounded-full h-2 cursor-pointer"
+                onClick={handleVolumeChange}
+              >
+                <div
+                  className="bg-primary h-2 rounded-full"
+                  style={{ width: `${volume * 100}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Recording label - Static text indicating this is a meeting recording */}
+            <div className="text-sm text-muted-foreground">Meeting Recording</div>
           </div>
-    
-          {/* Recording label */}
-          <div className="text-sm text-muted-foreground">Meeting Recording</div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

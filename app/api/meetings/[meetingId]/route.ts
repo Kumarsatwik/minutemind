@@ -82,7 +82,7 @@ export async function GET(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { meetingId: string } }
+  { params }: { params: Promise<{ meetingId: string }> }
 ) {
   // Step 1: Authenticate the user using Clerk
   try {
@@ -92,7 +92,7 @@ export async function DELETE(
     }
 
     // Step 2: Extract meetingId from path params
-    const { meetingId } = params;
+    const { meetingId } = await params;
 
     // Step 3: Fetch the meeting with user info to verify ownership
     const meeting = await prisma.meeting.findUnique({
