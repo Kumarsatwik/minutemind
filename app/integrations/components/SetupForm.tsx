@@ -13,10 +13,24 @@ import {
 } from "@/components/ui/select";
 import React, { useState } from "react";
 
+interface SetupItem {
+  id?: string;
+  key?: string;
+  gid?: string;
+  name: string;
+}
+
+interface SetupData {
+  boards?: SetupItem[];
+  channels?: SetupItem[];
+  projects?: SetupItem[];
+  workspaceId?: string;
+}
+
 interface SetupFormProps {
   platform: string;
-  data: any;
-  onSubmit: (platform: string, config: any) => void;
+  data: SetupData;
+  onSubmit: (platform: string, config: Record<string, unknown>) => void;
   onCancel: () => void;
   loading: boolean;
 }
@@ -75,7 +89,7 @@ function SetupForm({
             value={selectedId}
             onValueChange={(value) => {
               const selected = items?.find(
-                (item: any) =>
+                (item: SetupItem) =>
                   item.id === value || item.key === value || item.gid === value
               );
               setSelectedId(value);
@@ -90,14 +104,14 @@ function SetupForm({
                 <SelectLabel>
                   {itemLabel.charAt(0).toUpperCase() + itemLabel.slice(1)}s
                 </SelectLabel>
-                {items?.map((item: any) => (
-                  <SelectItem
-                    key={item.id || item.key || item.gid}
-                    value={item.id || item.key || item.gid}
-                  >
-                    {item.name}
-                  </SelectItem>
-                ))}
+                {items?.map((item: SetupItem) => {
+                  const itemValue = item.id || item.key || item.gid || "";
+                  return (
+                    <SelectItem key={itemValue} value={itemValue}>
+                      {item.name}
+                    </SelectItem>
+                  );
+                })}
               </SelectGroup>
             </SelectContent>
           </Select>

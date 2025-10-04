@@ -161,7 +161,7 @@ export function useMeetingDetails() {
     if (isLoaded) {
       fetchMeetingData();
     }
-  }, [userChecked, userId, meetingId]);
+  }, [isLoaded, userChecked, userId, meetingId]);
 
   // Effect to process transcript for RAG when user is verified as owner
   useEffect(() => {

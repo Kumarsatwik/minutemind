@@ -20,8 +20,6 @@ function Integrations() {
     setupData, // Data for the setup form (projects/boards available)
     setSetupData, // Function to update setup data
     setupLoading, // Loading state during setup submission
-    setSetupLoading, // Function to update setup loading state
-    fetchIntegrations, // Function to refresh integration status
     fetchSetupData, // Function to fetch setup data for a platform
     handleConnect, // Function to initiate OAuth connection flow
     handleDisconnect, // Function to disconnect an integration
@@ -66,7 +64,7 @@ function Integrations() {
 
               <SetupForm
                 platform={setupMode}
-                data={setupData}
+                data={setupData || { boards: [], channels: [], projects: [] }}
                 onSubmit={handleSetupSubmit}
                 onCancel={() => {
                   setSetupMode(null);
@@ -104,7 +102,10 @@ function Integrations() {
           <ol className="text-sm text-muted-foreground space-y-2">
             <li>1. Connect your preffered tools above</li>
             <li>2. Choose where to send action items during setup</li>
-            <li>3. In meetings, hover over action items and click &quot;Add to&quot;</li>
+            <li>
+              3. In meetings, hover over action items and click &quot;Add
+              to&quot;
+            </li>
             <li>
               4. Select which tool(s) to add the task to from the dropdown
             </li>

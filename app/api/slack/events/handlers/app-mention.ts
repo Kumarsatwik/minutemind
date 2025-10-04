@@ -1,22 +1,48 @@
 import prisma from "@/lib/db"; // Database client for user operations
 import { isDuplicateEvent } from "../utils/deduplicate"; // Duplicate event prevention utility
 
+interface SlackEvent {
+  channel: string;
+  user?: string;
+  text?: string;
+  event_ts?: string;
+  ts?: string;
+}
+
+interface SlackContext {
+  event: SlackEvent;
+  say: (message: string | object) => Promise<void>;
+  client: {
+    auth: {
+      test: () => Promise<{ user_id: string; team_id: string }>;
+    };
+    users: {
+      info: (params: { user: string }) => Promise<{
+        user?: {
+          profile?: {
+            email?: string;
+          };
+        };
+      }>;
+    };
+  };
+}
+
 /**
  * Handles Slack app mention events (@bot mentions)
  * Processes user questions about meetings using RAG API and responds in Slack
  *
- * @param event - Slack event object containing channel, user, and text
- * @param say - Slack say function for sending responses
- * @param client - Slack WebClient for API calls
+ * @param context - Slack event context containing event, say function, and client
  */
-export async function handleAppMention({ event, say, client }: any) {
+export async function handleAppMention(context: SlackContext) {
+  const { event, say, client } = context;
   try {
     // Create unique event identifier for duplicate prevention
     const eventId = `app_mention-${event.channel}-${event.user}`;
-    const eventTs = event.event_ts || event.ts;
+    const eventTs = event.event_ts || event.ts || "";
 
     // Check for duplicate events and return early if already processed
-    if (isDuplicateEvent(eventId, eventTs)) {
+    if (eventTs && isDuplicateEvent(eventId, eventTs)) {
       return;
     }
 

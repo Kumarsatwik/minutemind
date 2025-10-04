@@ -81,7 +81,9 @@ export function useIntegrations() {
   const [setupMode, setSetupMode] = useState<string | null>(null);
 
   // Data for the setup form (projects/boards/channels available for selection)
-  const [setupData, setSetupData] = useState<any>(null);
+  const [setupData, setSetupData] = useState<Record<string, unknown> | null>(
+    null
+  );
 
   // Loading state during setup form submission
   const [setupLoading, setSetupLoading] = useState(false);
@@ -116,6 +118,9 @@ export function useIntegrations() {
       const calendarResponse = await fetch("/api/user/calendar-status");
       const calendarData = await calendarResponse.json();
 
+      // Ensure data is an array before processing
+      const integrationData = Array.isArray(data) ? data : [];
+
       // Update integrations state with fetched data
       setIntegrations((prev) =>
         prev.map((integration) => {
@@ -128,8 +133,14 @@ export function useIntegrations() {
           }
 
           // Find status data for this integration
-          const status = data.find(
-            (d: any) => d.platform === integration.platform
+          const status = integrationData.find(
+            (d: {
+              platform: string;
+              connected?: boolean;
+              boardName?: string;
+              projectName?: string;
+              channelName?: string;
+            }) => d.platform === integration.platform
           );
 
           // Update integration with status data
@@ -211,7 +222,10 @@ export function useIntegrations() {
    * @param platform - The integration platform being configured
    * @param config - The setup configuration (project/board/channel selection)
    */
-  const handleSetupSubmit = async (platform: string, config: any) => {
+  const handleSetupSubmit = async (
+    platform: string,
+    config: Record<string, unknown>
+  ) => {
     setSetupLoading(true);
     try {
       // Submit setup configuration to backend

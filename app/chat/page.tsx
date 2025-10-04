@@ -25,7 +25,6 @@ function Chat() {
     // This centralizes chat logic and makes the component focused on UI rendering
     const {
         chatInput,           // Current text in the input field
-        setChatInput,        // Function to update input text
         messages,            // Array of chat messages to display
         showSuggestions,     // Boolean to show/hide suggestion prompts
         isLoading,           // Loading state for async operations

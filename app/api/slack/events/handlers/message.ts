@@ -1,6 +1,33 @@
 import prisma from "@/lib/db"; // Database client for user operations
 import { isDuplicateEvent } from "../utils/deduplicate"; // Duplicate event prevention utility
 
+interface SlackMessage {
+  channel: string;
+  user: string;
+  text?: string;
+  ts: string;
+  subtype?: string;
+}
+
+interface SlackMessageContext {
+  message: SlackMessage;
+  say: (message: string | object) => Promise<void>;
+  client: {
+    auth: {
+      test: () => Promise<{ user_id: string; team_id: string }>;
+    };
+    users: {
+      info: (params: { user: string }) => Promise<{
+        user?: {
+          profile?: {
+            email?: string;
+          };
+        };
+      }>;
+    };
+  };
+}
+
 /**
  * Handles regular Slack messages in channels where the bot is present
  * Processes user questions about meetings using RAG API (similar to app-mention but for general messages)
@@ -9,7 +36,11 @@ import { isDuplicateEvent } from "../utils/deduplicate"; // Duplicate event prev
  * @param say - Slack say function for sending responses
  * @param client - Slack WebClient for API calls
  */
-export async function handleMessage({ message, say, client }: any) {
+export async function handleMessage({
+  message,
+  say,
+  client,
+}: SlackMessageContext) {
   try {
     // Filter out bot messages, system messages, and messages without user/text content
     if (
