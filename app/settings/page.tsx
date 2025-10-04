@@ -198,6 +198,8 @@ function Settings() {
                     src={user.imageUrl}
                     alt="profile"
                     className="w-16 h-16 rounded-full object-cover"
+                    width={64}
+                    height={64}
                   />
                 ) : (
                   <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center ">
@@ -271,6 +273,8 @@ function Settings() {
                     src={botImageUrl}
                     alt="Bot Avatar"
                     className="w-20 h-20 rounded-full object-cover"
+                    width={64}
+                    height={64}
                   />
                 ) : (
                   <Bot className="h-10 w-10 text-primary" />
