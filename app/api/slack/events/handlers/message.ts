@@ -1,5 +1,6 @@
 import prisma from "@/lib/db"; // Database client for user operations
 import { isDuplicateEvent } from "../utils/deduplicate"; // Duplicate event prevention utility
+import type { SlackEventMiddlewareArgs, AllMiddlewareArgs } from "@slack/bolt";
 
 /**
  * Handles regular Slack messages in channels where the bot is present
@@ -9,30 +10,39 @@ import { isDuplicateEvent } from "../utils/deduplicate"; // Duplicate event prev
  * @param say - Slack say function for sending responses
  * @param client - Slack WebClient for API calls
  */
-export async function handleMessage({ message, say, client }: any) {
+export async function handleMessage({ message, say, client }: SlackEventMiddlewareArgs<"message"> & AllMiddlewareArgs) {
   try {
+    // Define a narrow message shape to avoid any casting while accessing fields
+    const m = message as {
+      user?: string;
+      text?: string;
+      ts?: string;
+      channel?: string;
+      subtype?: string;
+    };
+
     // Filter out bot messages, system messages, and messages without user/text content
     if (
-      message.subtype === "bot message" ||
-      !("user" in message) ||
-      !("text" in message)
+      m.subtype === "bot message" ||
+      !("user" in m) ||
+      !("text" in m)
     ) {
       return; // Ignore bot messages and malformed messages
     }
 
     // Filter out messages from other bots (Slack bot user IDs start with "B")
-    if (message.user && message.user.startsWith("B")) {
+    if (m.user && m.user.startsWith("B")) {
       return; // Ignore other bot messages
     }
 
     // Verify the bot's identity and ignore self-messages
     const authTest = await client.auth.test();
-    if (message.user == authTest.user_id) {
+    if (m.user == authTest.user_id) {
       return; // Ignore messages from the bot itself
     }
 
     // Extract message text
-    const text = message.text || "";
+    const text = m.text || "";
 
     // Ignore messages that mention the bot (handled by app-mention handler)
     if (text.includes(`<@${authTest.user_id}>`)) {
@@ -40,8 +50,13 @@ export async function handleMessage({ message, say, client }: any) {
     }
 
     // Create unique event identifier for duplicate prevention
-    const eventId = `message-${message.channel}-${message.user}`;
-    const eventTs = message.ts;
+    const eventId = `message-${m.channel}-${m.user}`;
+    const eventTs = m.ts;
+
+    // Ensure required identifiers are present before duplicate check
+    if (!eventTs || !m.channel || !m.user) {
+      return;
+    }
 
     // Check for duplicate events and return early if already processed
     if (isDuplicateEvent(eventId, eventTs)) {
@@ -49,7 +64,7 @@ export async function handleMessage({ message, say, client }: any) {
     }
 
     // Extract Slack user ID from the message
-    const slackUserId = message.user;
+    const slackUserId = m.user;
     if (!slackUserId) {
       return; // Exit if no user ID provided
     }
@@ -66,7 +81,7 @@ export async function handleMessage({ message, say, client }: any) {
     }
 
     // Get user's email from their Slack profile
-    const userInfo = await client.users.info({ user: slackUserId });
+    const userInfo = await client.users.info({ user: slackUserId! });
     const userEmail = userInfo.user?.profile?.email;
 
     // Handle cases where email is not accessible
@@ -117,7 +132,7 @@ export async function handleMessage({ message, say, client }: any) {
         id: user.id,
       },
       data: {
-        slackUserId: slackUserId,
+        slackUserId: slackUserId!,
         slackTeamId: teamId as string,
         slackConnected: true,
       },

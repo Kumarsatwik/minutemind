@@ -1,5 +1,6 @@
 import prisma from "@/lib/db"; // Database client for user operations
 import { isDuplicateEvent } from "../utils/deduplicate"; // Duplicate event prevention utility
+import type { SlackEventMiddlewareArgs, AllMiddlewareArgs } from "@slack/bolt";
 
 /**
  * Handles Slack app mention events (@bot mentions)
@@ -9,7 +10,7 @@ import { isDuplicateEvent } from "../utils/deduplicate"; // Duplicate event prev
  * @param say - Slack say function for sending responses
  * @param client - Slack WebClient for API calls
  */
-export async function handleAppMention({ event, say, client }: any) {
+export async function handleAppMention({ event, say, client }: SlackEventMiddlewareArgs<"app_mention"> & AllMiddlewareArgs) {
   try {
     // Create unique event identifier for duplicate prevention
     const eventId = `app_mention-${event.channel}-${event.user}`;
