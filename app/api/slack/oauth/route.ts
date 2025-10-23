@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
 
         // Store or update Slack installation in database
         // Using unchecked operations to handle 'active' field type issues
-        await (prisma.slackInstallation as any).upsert({
+        await prisma.slackInstallation.upsert({
             where: {
                 teamId: tokenData.team.id  // Unique identifier for Slack workspace
             },
@@ -93,7 +93,7 @@ export async function GET(request: NextRequest) {
         })
 
         // Ensure the installation is marked as active (separate update for reliability)
-        await (prisma.slackInstallation as any).update({
+        await prisma.slackInstallation.update({
             where: {
                 teamId: tokenData.team.id
             },

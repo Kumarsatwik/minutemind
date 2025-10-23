@@ -13,10 +13,24 @@ import {
 } from "@/components/ui/select";
 import React, { useState } from "react";
 
+// Define shared item type used across setup data
+type SetupItem = { id?: string; key?: string; gid?: string; name: string };
+
+// Define the structure of setup data for different platforms
+interface SetupData {
+  boards?: SetupItem[];
+  channels?: SetupItem[];
+  projects?: SetupItem[];
+  workspaceId?: string;
+}
+
+// Define the shape of the setup configuration payload
+type SetupConfig = Record<string, string | boolean | undefined>;
+
 interface SetupFormProps {
   platform: string;
-  data: any;
-  onSubmit: (platform: string, config: any) => void;
+  data: SetupData | null;
+  onSubmit: (platform: string, config: SetupConfig) => void;
   onCancel: () => void;
   loading: boolean;
 }
@@ -33,7 +47,7 @@ function SetupForm({
   const [createNew, setCreateNew] = useState(false);
   const [newName, setNewName] = useState("");
 
-  const items =
+  const items: SetupItem[] | undefined =
     platform === "trello"
       ? data?.boards
       : platform === "slack"
@@ -75,7 +89,7 @@ function SetupForm({
             value={selectedId}
             onValueChange={(value) => {
               const selected = items?.find(
-                (item: any) =>
+                (item: SetupItem) =>
                   item.id === value || item.key === value || item.gid === value
               );
               setSelectedId(value);
@@ -90,10 +104,10 @@ function SetupForm({
                 <SelectLabel>
                   {itemLabel.charAt(0).toUpperCase() + itemLabel.slice(1)}s
                 </SelectLabel>
-                {items?.map((item: any) => (
+                {items?.map((item: SetupItem) => (
                   <SelectItem
                     key={item.id || item.key || item.gid}
-                    value={item.id || item.key || item.gid}
+                    value={item.id || item.key || item.gid || ""}
                   >
                     {item.name}
                   </SelectItem>

@@ -24,6 +24,18 @@ export interface Integration {
   logo: string;
 }
 
+// Shared setup item and data types
+type SetupItem = { id?: string; key?: string; gid?: string; name: string };
+export interface SetupData {
+  boards?: SetupItem[];
+  channels?: SetupItem[];
+  projects?: SetupItem[];
+  workspaceId?: string;
+}
+
+// Setup config type used when submitting configuration
+export type SetupConfig = Record<string, string | boolean | undefined>;
+
 /**
  * Custom hook for managing third-party integrations state and operations.
  * Handles fetching integration status, OAuth connections, disconnections,
@@ -81,7 +93,7 @@ export function useIntegrations() {
   const [setupMode, setSetupMode] = useState<string | null>(null);
 
   // Data for the setup form (projects/boards/channels available for selection)
-  const [setupData, setSetupData] = useState<any>(null);
+  const [setupData, setSetupData] = useState<SetupData | null>(null);
 
   // Loading state during setup form submission
   const [setupLoading, setSetupLoading] = useState(false);
@@ -110,11 +122,19 @@ export function useIntegrations() {
     try {
       // Fetch general integration status
       const response = await fetch("/api/integrations/status");
-      const data = await response.json();
+      const data = (await response.json()) as Array<{
+        platform: Integration["platform"];
+        connected?: boolean;
+        boardName?: string;
+        projectName?: string;
+        channelName?: string;
+      }>;
 
       // Fetch Google Calendar status separately (different API endpoint)
       const calendarResponse = await fetch("/api/user/calendar-status");
-      const calendarData = await calendarResponse.json();
+      const calendarData = (await calendarResponse.json()) as {
+        connected?: boolean;
+      };
 
       // Update integrations state with fetched data
       setIntegrations((prev) =>
@@ -129,7 +149,7 @@ export function useIntegrations() {
 
           // Find status data for this integration
           const status = data.find(
-            (d: any) => d.platform === integration.platform
+            (d) => d.platform === integration.platform
           );
 
           // Update integration with status data
@@ -157,7 +177,7 @@ export function useIntegrations() {
   const fetchSetupData = async (platform: string) => {
     try {
       const response = await fetch(`/api/integrations/${platform}/setup`);
-      const data = await response.json();
+      const data = (await response.json()) as SetupData;
       setSetupData(data);
     } catch (error) {
       console.error(`Error fetching ${platform} setup data:`, error);
@@ -211,7 +231,7 @@ export function useIntegrations() {
    * @param platform - The integration platform being configured
    * @param config - The setup configuration (project/board/channel selection)
    */
-  const handleSetupSubmit = async (platform: string, config: any) => {
+  const handleSetupSubmit = async (platform: string, config: SetupConfig) => {
     setSetupLoading(true);
     try {
       // Submit setup configuration to backend

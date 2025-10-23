@@ -22,7 +22,7 @@ export interface ChatMessage{
  */
 interface UseChatCoreOptions{
     apiEndpoint:string
-    getRequestBody:(input:string)=>any
+    getRequestBody:(input:string)=>Record<string, unknown>
 }
 
 /**

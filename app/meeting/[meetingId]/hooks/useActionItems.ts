@@ -62,12 +62,12 @@ export function useActionItems(meetingId:string){
         try{
             const response = await fetch(`/api/integration/status`)
             if(response.ok){
-                const data = await response.json()
+                const data = (await response.json()) as Integration[]
                 // Process integrations: filter connected ones, exclude Slack, add logos
                 const integrationsWithLogos = data
-                    .filter((d:any)=>d.connected)
-                    .filter((d:any)=>d.platform !=='slack')
-                    .map((integration:Integration)=> ({
+                    .filter((d)=>d.connected)
+                    .filter((d)=>d.platform !=='slack')
+                    .map((integration)=> ({
                         ...integration,
                         logo: `/${integration.platform}.png`
                     }))
