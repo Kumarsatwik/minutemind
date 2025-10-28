@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input"; // UI input field component
 import { Label } from "@/components/ui/label"; // UI label component for forms
 import { SignOutButton, useAuth, useUser } from "@clerk/nextjs"; // Clerk authentication hooks and sign out button
 import { Bot, LogOut, Save, Upload, User } from "lucide-react"; // Lucide React icons
+import Image from "next/image";
 import React, { useEffect, useState } from "react"; // React hooks and core library
 
 function Settings() {
@@ -28,7 +29,7 @@ function Settings() {
 
   // Bot customization state
   const [botName, setBotName] = useState("MinuteMind Bot"); // Name of the AI assistant bot
-  const [botImageUrl, setBotImageUrl] = useState(null); // URL of the bot's avatar image
+  const [botImageUrl, setBotImageUrl] = useState<string | null>(null); // URL of the bot's avatar image
   const [userPlan, setUserPlan] = useState("free"); // User's subscription plan
 
   // UI state management
@@ -68,7 +69,7 @@ function Settings() {
    * Handles changes to the bot name input field
    * Updates the bot name state and marks that there are unsaved changes
    */
-  const handleBotNameChange = (e: any) => {
+  const handleBotNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setBotName(e.target.value);
     setHasChanges(true);
   };
@@ -77,7 +78,7 @@ function Settings() {
    * Handles image upload for the bot avatar
    * Creates a FormData object, sends it to the upload endpoint, and updates the bot image URL
    */
-  const handleImageUpload = async (e: any) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) {
       return;
@@ -195,10 +196,12 @@ function Settings() {
             <div className="flex items-center gap-4 mb-4">
               <div className="w-16 h-16 rounded-full flex-shrink-0 overflow-hidden ring-2 ring-primary/20">
                 {user?.imageUrl ? (
-                  <img
+                  <Image
                     src={user.imageUrl}
                     alt="profile"
                     className="w-16 h-16 rounded-full object-cover"
+                    width={16}
+                    height={16}
                   />
                 ) : (
                   <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center ">
@@ -266,10 +269,12 @@ function Settings() {
             <div className="flex items-center gap-4">
               <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center overflow-hidden">
                 {botImageUrl ? (
-                  <img
+                  <Image
                     src={botImageUrl}
                     alt="Bot Avatar"
                     className="w-20 h-20 rounded-full object-cover"
+                    width={20}
+                    height={20}
                   />
                 ) : (
                   <Bot className="h-10 w-10 text-primary" />
