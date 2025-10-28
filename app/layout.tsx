@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     "productivity",
     "team collaboration",
     "meeting minutes",
-    "meeting bot",
+    "MinuteMind bot",
     "AI assistant",
     "meeting automation",
     "meeting summaries",

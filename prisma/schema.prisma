@@ -15,7 +15,7 @@ model User{
   name String?
   meetings Meeting[]
 
-  botName String? @default("AI Meeting Bot")
+  botName String? @default("MinuteMind Bot")
   botImageUrl String?
 
   googleAccessToken String?

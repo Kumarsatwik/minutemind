@@ -98,7 +98,7 @@ export class JiraAPI {
           projectTypeKey: "software",
           projectTemplateKey:
             "com.pyxis.greenhopper.jira:basic-software-development-template",
-          description: "Create Via Meeting Bot",
+          description: "Create Via MinuteMind Bot",
           leadAccountId: currentUser.accountId,
           assigneeType: "PROJECT_LEAD",
         }),
