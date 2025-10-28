@@ -32,6 +32,7 @@ export interface Integration{
 export function useActionItems(meetingId:string){
     // Get authenticated user ID from Clerk
     const {userId}=useAuth()
+    console.log(meetingId)
 
     // Integration state
     const [integrations,setIntegrations]=useState<Integration[]>([]) // List of connected integrations
