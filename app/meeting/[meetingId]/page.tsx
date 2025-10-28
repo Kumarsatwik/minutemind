@@ -46,7 +46,6 @@ function MeetingDetail() {
     isOwner,
     userChecked,
     chatInput,
-    setChatInput,
     messages,
     showSuggestions,
     activeTab,
