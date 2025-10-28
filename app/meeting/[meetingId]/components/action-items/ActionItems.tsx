@@ -62,7 +62,7 @@ function ActionItems({
         },
       });
       // API call to add to integration
-      const response = await fetch("/api/integrations/action-items", {
+      await fetch("/api/integrations/action-items", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
