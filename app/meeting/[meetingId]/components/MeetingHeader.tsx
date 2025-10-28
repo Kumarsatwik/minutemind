@@ -180,7 +180,13 @@ function MeetingHeader({
             variant="outline"
             className="border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white cursor-pointer disabled:cursor-not-allowed"
           >
-            <Image src="/slack.png" alt="Slack" className="w-4 h-4 mr-2" width={20} height={20} />
+            <Image
+              src="/slack.png"
+              alt="Slack"
+              className="w-4 h-4 mr-2"
+              width={20}
+              height={20}
+            />
             {isPosting ? "Posting..." : "Post to Slack"}
           </Button>
 

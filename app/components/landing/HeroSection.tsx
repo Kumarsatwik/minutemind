@@ -23,7 +23,7 @@ export default function HeroSection() {
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                 <Bot className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold text-white">MinuteMind Bot</span>
+              <span className="text-xl font-bold text-white">MinuteMind</span>
             </div>
             <div className="flex items-center gap-4">
               {isSignedIn ? (
@@ -35,7 +35,7 @@ export default function HeroSection() {
                   <SignInButton mode="modal">
                     <Button
                       variant="outline"
-                      className="border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white cursor-pointer"
+                      className="border-gray-700 text-gray-300 hover:bg-gray-800 bg-transparent hover:text-white cursor-pointer"
                     >
                       {" "}
                       Sign In{" "}
@@ -118,7 +118,7 @@ export default function HeroSection() {
             <Button
               variant="outline"
               size="lg"
-              className="border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white px-8 py-4 cursor-pointer"
+              className="border-gray-700 text-gray-300 hover:bg-gray-800 bg-transparent hover:text-white px-8 py-4 cursor-pointer"
             >
               <Play className="w-5 h-5 mr-2" />
               <span>Watch Demo</span>
