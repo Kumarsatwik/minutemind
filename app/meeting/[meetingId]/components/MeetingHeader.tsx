@@ -76,7 +76,7 @@ function MeetingHeader({
         }),
       });
 
-      const result = await response.json();
+      await response.json();
 
       // Note: No specific handling for success/error in UI beyond initial toast
       if (response.ok) {
@@ -145,7 +145,7 @@ function MeetingHeader({
           "Content-Type": "application/json",
         },
       });
-      const result = await response.json();
+      await response.json();
 
       if (response.ok) {
         // Success - redirect to home page
