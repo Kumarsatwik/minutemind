@@ -60,7 +60,7 @@ export async function processTranscript(
 
   // Step 4: Prepare chunk data for insertion into the database
   // Each chunk gets metadata like speaker and index for querying
-  const dbChunks: TranscriptChunk[] = chunks.map((chunk, index) => ({
+  const dbChunks: TranscriptChunk[] = chunks.map((chunk) => ({
     meetingId,
     chunkIndex: chunk.chunkIndex,
     content: chunk.content,
@@ -112,7 +112,15 @@ export async function chatWithMeeting(
   userId: string,
   meetingId: string,
   question: string
-): Promise<{ answer: string; sources: Array<{ meetingId: string; content: string; speakerName: string; confidence: number; }> }> {
+): Promise<{
+  answer: string;
+  sources: Array<{
+    meetingId: string;
+    content: string;
+    speakerName: string;
+    confidence: number;
+  }>;
+}> {
   // Step 1: Generate embedding for the question to enable semantic search
   const questionEmbedding = await createEmbedding(question);
 
@@ -142,7 +150,9 @@ export async function chatWithMeeting(
   // Step 5: Construct a detailed system prompt guiding the AI to answer based solely on the transcript
   const systemPrompt = `You are a helpful meeting assistant specializing in summarizing and answering questions about past meetings.
 
-The meeting is titled "${meeting?.title || "Untitled Meeting"}" and took place on ${
+The meeting is titled "${
+    meeting?.title || "Untitled Meeting"
+  }" and took place on ${
     meeting?.createdAt
       ? new Date(meeting.createdAt).toDateString()
       : "an unknown date"
@@ -181,16 +191,21 @@ Answer the user's question based strictly on the provided transcript. Be concise
 export async function chatWithAllMeetings(
   userId: string,
   question: string
-): Promise<{ answer: string; sources: Array<{ meetingId: string; meetingTitle: string; content: string; speakerName: string; confidence: number; }> }> {
+): Promise<{
+  answer: string;
+  sources: Array<{
+    meetingId: string;
+    meetingTitle: string;
+    content: string;
+    speakerName: string;
+    confidence: number;
+  }>;
+}> {
   // Step 1: Generate embedding for the question to enable semantic search across meetings
   const questionEmbedding = await createEmbedding(question);
 
   // Step 2: Search Pinecone for top 5 most relevant transcript chunks filtered by user (all meetings)
-  const results = await searchVectors(
-    questionEmbedding,
-    { userId },
-    5
-  );
+  const results = await searchVectors(questionEmbedding, { userId }, 5);
 
   // Step 3: Build context string from retrieved chunks, grouping by meeting title and attributing to speakers
   const context = results
