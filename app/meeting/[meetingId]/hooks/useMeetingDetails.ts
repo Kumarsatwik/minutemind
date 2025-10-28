@@ -237,7 +237,7 @@ export function useMeetingDetails() {
    * Adds a new action item by fetching updated meeting data
    * @param text - The text content of the new action item
    */
-  const addActionItem = async (text: string) => {
+  const addActionItem = async () => {
     if (!isOwner) {
       return;
     }
