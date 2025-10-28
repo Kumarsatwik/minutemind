@@ -112,9 +112,9 @@ export async function POST(request: NextRequest) {
     const jira = new JiraAPI();
 
     // Initialize final project variables
-    let finalProjectId = projectId;
-    let finalProjectName = projectName;
-    let finalProjectKey = projectKey;
+    // let finalProjectId = projectId;
+    const finalProjectName = projectName;
+    const finalProjectKey = projectKey;
 
     // Handle creating a new project
     if (createNew && projectName) {
@@ -127,7 +127,8 @@ export async function POST(request: NextRequest) {
         const key = projectKey || suggestedKey;
 
         // Create new project via Jira API
-        const newProject = await jira.createProject(
+        // const newProject =
+        await jira.createProject(
           validToken,
           integration.workspaceId,
           projectName,
@@ -135,9 +136,9 @@ export async function POST(request: NextRequest) {
         );
 
         // Update final project details with created project
-        finalProjectId = newProject.id;
-        finalProjectName = projectName;
-        finalProjectKey = newProject.key;
+        // finalProjectId = newProject.id;
+        // finalProjectName = projectName;
+        // finalProjectKey = newProject.key;
       } catch (error) {
         console.error("failed to create prohect:", error);
         return NextResponse.json(
@@ -168,8 +169,8 @@ export async function POST(request: NextRequest) {
       }
 
       // Update final project details with selected project
-      finalProjectKey = selectedProject.key;
-      finalProjectName = selectedProject.name;
+      // finalProjectKey = selectedProject.key;
+      // finalProjectName = selectedProject.name;
     }
     // Invalid request - neither creating new nor selecting existing
     else {
