@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
       const description = `Action item from meeting ${meetingId || "Unkown"}`;
 
       // Create a new issue in the configured project
-      const issue = await jira.createIssue(
+      await jira.createIssue(
         integration.accessToken,
         integration.workspaceId,
         integration.projectId,
