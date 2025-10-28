@@ -20,8 +20,6 @@ function Integrations() {
     setupData, // Data for the setup form (projects/boards available)
     setSetupData, // Function to update setup data
     setupLoading, // Loading state during setup submission
-    setSetupLoading, // Function to update setup loading state
-    fetchIntegrations, // Function to refresh integration status
     fetchSetupData, // Function to fetch setup data for a platform
     handleConnect, // Function to initiate OAuth connection flow
     handleDisconnect, // Function to disconnect an integration
