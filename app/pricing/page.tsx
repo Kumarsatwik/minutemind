@@ -1,5 +1,6 @@
 "use client";
 
+// Pricing page component for displaying subscription plans with Stripe integration
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,12 +15,13 @@ import { useUser } from "@clerk/nextjs";
 import { Check, Loader2 } from "lucide-react";
 import React, { useState } from "react";
 
+// Array of subscription plans with pricing details, features, and Stripe price IDs
 const plans = [
   {
     id: "starter",
     name: "Starter",
-    price: 9,
-    priceId: "price_1RpqPqPM25qIcCJyMdRhoNah",
+    price: 5,
+    priceId: "price_1SNRFySGHNKq1flkGjzFFoNf",
     description: "Perfect for people getting started",
     features: [
       "10 meetings per month",
@@ -33,8 +35,8 @@ const plans = [
   {
     id: "pro",
     name: "Pro",
-    price: 29,
-    priceId: "price_1RpqPqPM25qIcCJyWkSDTdKN",
+    price: 15,
+    priceId: "price_1SNRFySGHNKq1flkOPlNXkEr",
     description: "Perfect for people growing who need more power",
     features: [
       "30 meetings per month",
@@ -49,8 +51,8 @@ const plans = [
   {
     id: "premium",
     name: "Premium",
-    price: 99,
-    priceId: "price_1RpqPqPM25qIcCJyXD9K1yKM",
+    price: 20,
+    priceId: "price_1SNRFySGHNKq1flkLX0OFHIM",
     description: "Perfect for people who need unlimited limits",
     features: [
       "Unlimited meetings per month",
@@ -64,18 +66,24 @@ const plans = [
   },
 ];
 
+// Main Pricing component that renders the subscription plans and handles Stripe checkout
 function Pricing() {
   const { user } = useUser();
+  // State to track loading status for a specific plan's subscription button
   const [loading, setLoading] = useState<string | null>(null);
 
+  // Function to handle subscription initiation by calling Stripe checkout API and redirecting user
   const handleSubscribe = async (priceId: string, planName: string) => {
+    // Check if user is authenticated; exit if not
     if (!user) {
       return;
     }
 
+    // Set loading state for the specific plan to show spinner on button
     setLoading(priceId);
 
     try {
+      // Call backend API to create Stripe checkout session
       const response = await fetch("/api/stripe/create-checkout", {
         method: "POST",
         headers: {
@@ -89,18 +97,23 @@ function Pricing() {
 
       const data = await response.json();
 
+      // If checkout URL is returned, redirect user to Stripe
       if (data.url) {
         window.location.href = data.url;
       } else {
+        // Throw error if no URL is provided
         throw new Error(data.error || "Failed to create checkout session");
       }
     } catch (error) {
+      // Log any errors encountered during subscription process
       console.error("subscription creation error:", error);
     } finally {
+      // Reset loading state regardless of success or failure
       setLoading(null);
     }
   };
 
+  // Render the pricing page UI with plan cards and promotional header
   return (
     <div className="container mx-auto px-6 2xl:max-w-[1400px] py-16">
       <div className="max-w-2xl mx-auto text-center mb-14">
