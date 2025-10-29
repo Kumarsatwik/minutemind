@@ -39,6 +39,8 @@ function IntegrationCard({
               alt={`${integration.name} logo`}
               fill
               className="object-contain rounded"
+              width={32}
+              height={32}
             />
           </div>
           <div>
