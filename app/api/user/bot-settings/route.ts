@@ -59,3 +59,68 @@ export async function GET() {
     );
   }
 }
+
+/**
+ * POST /api/user/bot-settings
+ *
+ * Updates the current user's bot settings. Accepts partial updates.
+ * Body: { botName?: string; botImageUrl?: string }
+ *
+ * @returns {Promise<NextResponse>} JSON response with updated bot settings or error
+ */
+export async function POST(request: Request) {
+  try {
+    const user = await currentUser();
+    if (!user) {
+      return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+    }
+
+    const body = await request.json().catch(() => ({}));
+    const { botName, botImageUrl } = body as {
+      botName?: unknown;
+      botImageUrl?: unknown;
+    };
+
+    const updates: { botName?: string; botImageUrl?: string } = {};
+    if (typeof botName === "string") {
+      updates.botName = botName.trim();
+    }
+    if (typeof botImageUrl === "string") {
+      updates.botImageUrl = botImageUrl.trim();
+    }
+
+    if (!updates.botName && !updates.botImageUrl) {
+      return NextResponse.json(
+        { error: "no valid fields to update" },
+        { status: 400 }
+      );
+    }
+
+    const updated = await prisma.user.update({
+      where: { clerkId: user.id },
+      data: updates,
+      select: {
+        botName: true,
+        botImageUrl: true,
+        currentPlan: true,
+      },
+    });
+
+    return NextResponse.json({
+      botName: updated.botName || "MinuteMind bot",
+      botImageUrl: updated.botImageUrl || "",
+      plan: updated.currentPlan || "free",
+    });
+  } catch (error) {
+    console.error("Error updating bot settings:", error);
+    return NextResponse.json(
+      { error: "internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+// Handle CORS preflight if the client sends an OPTIONS request
+export async function OPTIONS() {
+  return NextResponse.json({}, { status: 200 });
+}
