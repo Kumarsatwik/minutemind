@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     });
     await s3Client.send(uploadCommand);
 
-    const publicUrl = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`;
+    const publicUrl = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`;
 
     return NextResponse.json({ success: true, url: publicUrl });
   } catch (error) {
