@@ -273,8 +273,8 @@ function Settings() {
                     src={botImageUrl}
                     alt="Bot Avatar"
                     className="w-20 h-20 rounded-full object-cover"
-                    width={20}
-                    height={20}
+                    width={150}
+                    height={150}
                   />
                 ) : (
                   <Bot className="h-10 w-10 text-primary" />
