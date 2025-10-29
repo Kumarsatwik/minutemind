@@ -43,6 +43,7 @@ export async function POST(request: NextRequest) {
     if (!user.primaryEmailAddress?.emailAddress) {
       return NextResponse.json({ error: "email is required" }, { status: 400 });
     }
+    const emailAddress = user.primaryEmailAddress?.emailAddress as string;
 
     // Create user in database if not exists
     if (!dbUser) {
@@ -50,7 +51,7 @@ export async function POST(request: NextRequest) {
         data: {
           id: userId,
           clerkId: userId,
-          email: user.primaryEmailAddress?.emailAddress,
+          email: emailAddress,
           name: user.fullName,
         },
       });
@@ -62,7 +63,7 @@ export async function POST(request: NextRequest) {
     // Create new Stripe customer if not exists
     if (!stripeCustomerId) {
       const customer = await stripe.customers.create({
-        email: user.primaryEmailAddress?.emailAddress!,
+        email: emailAddress,
         name: user.fullName || undefined,
         metadata: {
           clerkUserId: userId,

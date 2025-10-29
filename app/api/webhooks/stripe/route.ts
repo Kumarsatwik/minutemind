@@ -131,7 +131,9 @@ async function handleSubscriptionCancelled(subscription: Stripe.Subscription) {
 
 async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
   try {
-    const subscriptionId = (invoice as any).subscription as string | null;
+    const subscriptionId = (
+      invoice as Stripe.Invoice & { subscription: string | null }
+    ).subscription;
 
     if (subscriptionId) {
       const user = await prisma.user.findFirst({
