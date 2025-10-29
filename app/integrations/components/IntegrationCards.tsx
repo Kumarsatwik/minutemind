@@ -37,7 +37,6 @@ function IntegrationCard({
             <Image
               src={integration.logo}
               alt={`${integration.name} logo`}
-              fill
               className="object-contain rounded"
               width={32}
               height={32}
