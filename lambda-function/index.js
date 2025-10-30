@@ -14,7 +14,7 @@ const prisma = new PrismaClient();
  * Main Lambda handler function
  * Orchestrates calendar syncing and bot scheduling for all users
  */
-export const handler = async (event) => {
+export const handler = async () => {
   try {
     // Sync all user calendars with their Google Calendar data
     await syncAllUserCalendars();
